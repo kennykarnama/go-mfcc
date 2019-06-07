@@ -4,9 +4,9 @@ import (
 	"errors"
 	"os"
 
-	"github.com/kennykarnama/experiment-sound-proc/helper"
+	"github.com/kennykarnama/go-mfcc/helper"
 
-	"github.com/kennykarnama/experiment-sound-proc/preprocessing"
+	"github.com/kennykarnama/go-mfcc/preprocessing"
 
 	"github.com/mjibson/go-dsp/wav"
 )

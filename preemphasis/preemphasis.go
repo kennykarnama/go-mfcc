@@ -1,8 +1,8 @@
 package preemphasis
 
 import (
-	"github.com/kennykarnama/experiment-sound-proc/mfcc"
-	"github.com/kennykarnama/experiment-sound-proc/preprocessing"
+	"github.com/kennykarnama/go-mfcc/mfcc"
+	"github.com/kennykarnama/go-mfcc/preprocessing"
 )
 
 //Options for preemphasis

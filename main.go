@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/kennykarnama/experiment-sound-proc/preemphasis"
+	"github.com/kennykarnama/go-mfcc/preemphasis"
 
 	"github.com/dgraph-io/badger"
 
-	"github.com/kennykarnama/experiment-sound-proc/mfcc"
+	"github.com/kennykarnama/go-mfcc/mfcc"
 )
 
 func main() {
