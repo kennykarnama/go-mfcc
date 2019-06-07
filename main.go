@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/kennykarnama/go-mfcc/preemphasis"
@@ -12,26 +11,18 @@ import (
 )
 
 func main() {
-	//First we create the preprocessing step
-	//here we introduce the pre-emphasis process
-	preEmphasis := preemphasis.NewPreEmphasis(preemphasis.WithAlfa(0.97))
+
 	//Init the DB
 	conn := initBadgerDB()
 	defer conn.Close()
 	//Init repo
 	repo := initRepository(conn)
-	// val, err := repo.Get("pre-processing-result")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// fmt.Println(val)
-
+	//First we create the preprocessing step
+	//here we introduce the pre-emphasis process
+	preEmphasis := preemphasis.NewPreEmphasis(preemphasis.WithAlfa(0.97), preemphasis.WithRepository(repo))
 	//We then construct new mfcc object to do the processing
 	mfcc := mfcc.NewMFCC(mfcc.WithPreProcessing(preEmphasis), mfcc.WithFilepath("sample_sounds/bird.wav"), mfcc.WithRepository(repo))
-	samples := mfcc.Run()
-	fmt.Println(mfcc.Processor.SampleRate)
-
-	fmt.Println(samples[0:5])
+	mfcc.Run()
 }
 
 func initRepository(db *badger.DB) mfcc.KeyValueRepository {

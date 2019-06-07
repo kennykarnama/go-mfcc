@@ -84,12 +84,6 @@ func (mfcc *MFCC) Run() []float32 {
 	//PreProcessing step
 	if mfcc.PreProcessing != nil {
 		samples, err = mfcc.PreProcessing.PreProcess(newSamples)
-		helper.FailOnError(err)
-		if mfcc.Repository != nil {
-			err = mfcc.Repository.Save("pre-processing-result", samples)
-			helper.FailOnError(err)
-		}
-
 	}
 	return newSamples
 }
