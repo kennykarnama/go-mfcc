@@ -16,26 +16,26 @@ type KeyValueRepository interface {
 }
 
 //BadgerRepo provide interaction with badgerdb
-type BadgerRepo struct {
+type repository struct {
 	DB *badger.DB
 }
 
-//NewBadgerRepo constructs new repository that
+//NewRepository constructs new repository that
 //use badgerdb
-func NewBadgerRepo(db *badger.DB) KeyValueRepository {
-	return &BadgerRepo{DB: db}
+func NewRepository(db *badger.DB) KeyValueRepository {
+	return &repository{DB: db}
 }
 
 //Save value based on the key
-func (br *BadgerRepo) Save(key string, value interface{}) error {
+func (br *repository) Save(key string, value interface{}) error {
 	samples, err := helper.ConformToArrayFloat32(value)
 	if err != nil {
 		return err
 	}
 	delim := ","
 	val := strings.Trim(strings.Join(strings.Split(fmt.Sprint(samples), " "), delim), "[]")
-
 	err = br.DB.Update(func(txn *badger.Txn) error {
+		//log.Printf("Now Processing val %s", val)
 		err := txn.Set([]byte(key), []byte(val))
 		return err
 	})
@@ -43,7 +43,7 @@ func (br *BadgerRepo) Save(key string, value interface{}) error {
 }
 
 //Get value from key specified
-func (br *BadgerRepo) Get(key string) (interface{}, error) {
+func (br *repository) Get(key string) (interface{}, error) {
 	var res interface{}
 	err := br.DB.View(func(txn *badger.Txn) error {
 		item, err := txn.Get([]byte(key))

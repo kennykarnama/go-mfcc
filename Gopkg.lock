@@ -80,6 +80,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:d6bb6f3240a488ffe5bb6952b513569d009927dcb20ff94885f87b76cef2b698"
+  name = "github.com/streadway/amqp"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "75d898a42a940fbc854dfd1a4199eabdc00cf024"
+
+[[projects]]
+  branch = "master"
   digest = "1:e0efd295a10a5703f556a97b7f90f9b3a02ee5080b26ee5374d100a6131aea68"
   name = "golang.org/x/net"
   packages = [
@@ -121,6 +129,7 @@
   input-imports = [
     "github.com/dgraph-io/badger",
     "github.com/mjibson/go-dsp/wav",
+    "github.com/streadway/amqp",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

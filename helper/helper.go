@@ -2,7 +2,9 @@ package helper
 
 import (
 	"errors"
+	"fmt"
 	"log"
+	"strings"
 )
 
 //FailOnError logs to stdout and os.Exit(1)
@@ -33,4 +35,15 @@ func ConformToArrayFloat32(data interface{}) ([]float32, error) {
 	default:
 		return nil, errors.New("Unknown bit sample format")
 	}
+}
+
+//ConvertToDelimited converts corresponding []float32 to be
+//delimited string
+func ConvertToDelimited(value interface{}, delim string) (string, error) {
+	samples, err := ConformToArrayFloat32(value)
+	if err != nil {
+		return "", err
+	}
+	val := strings.Trim(strings.Join(strings.Split(fmt.Sprint(samples), " "), delim), "[]")
+	return val, nil
 }
