@@ -1,10 +1,11 @@
-package mfcc
+package repository
 
 import (
 	"fmt"
 	"strings"
 
 	"github.com/dgraph-io/badger"
+	"github.com/kennykarnama/go-mfcc/helper"
 )
 
 //KeyValueRepository represents interface
@@ -27,7 +28,7 @@ func NewBadgerRepo(db *badger.DB) KeyValueRepository {
 
 //Save value based on the key
 func (br *BadgerRepo) Save(key string, value interface{}) error {
-	samples, err := conformToArrayFloat32(value)
+	samples, err := helper.ConformToArrayFloat32(value)
 	if err != nil {
 		return err
 	}

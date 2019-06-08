@@ -1,15 +1,22 @@
 package preemphasis
 
 import (
-	"github.com/kennykarnama/go-mfcc/mfcc"
+	"github.com/kennykarnama/go-mfcc/mfcc/repository"
 	"github.com/kennykarnama/go-mfcc/preprocessing"
+)
+
+const (
+	//StatusSuccess saved to db
+	StatusSuccess = "SUCCESS"
+	//Failed means db failed
+	Failed = "FAILED"
 )
 
 //Options for preemphasis
 type Options struct {
 	Alfa       float32
 	KeyDB      string
-	Repository mfcc.KeyValueRepository
+	Repository repository.KeyValueRepository
 }
 
 //WithAlfa is a function to set the alfa
@@ -28,7 +35,7 @@ func SetKeyDB(keydb string) Option {
 }
 
 //WithRepository sets the repository used
-func WithRepository(keydb mfcc.KeyValueRepository) Option {
+func WithRepository(keydb repository.KeyValueRepository) Option {
 	return func(o *Options) {
 		o.Repository = keydb
 	}
@@ -41,7 +48,7 @@ type Option func(*Options)
 type PreEmphasis struct {
 	Alfa       float32
 	KeyDB      string
-	Repository mfcc.KeyValueRepository
+	Repository repository.KeyValueRepository
 }
 
 //NewPreEmphasis will construct new preemphasis signal
@@ -61,16 +68,18 @@ func NewPreEmphasis(options ...Option) preprocessing.PreProcessing {
 
 //PreProcess is a function do do preprocessing steps
 //to signal vector
-func (pr *PreEmphasis) PreProcess(samples []float32) ([]float32, error) {
+func (pr *PreEmphasis) PreProcess(samples []float32) (*preprocessing.Result, error) {
 	n := len(samples)
+	res := &preprocessing.Result{}
 	for i := 1; i < n; i++ {
 		samples[i] = samples[i] - pr.Alfa*samples[i-1]
 	}
+	res.Samples = samples
 	if pr.Repository != nil {
 		err := pr.Repository.Save(pr.KeyDB, samples)
 		if err != nil {
-			return nil, err
+			return res, err
 		}
 	}
-	return samples, nil
+	return res, nil
 }

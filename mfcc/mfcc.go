@@ -1,10 +1,12 @@
 package mfcc
 
 import (
-	"errors"
+	"log"
 	"os"
 
+	"github.com/kennykarnama/go-mfcc/framing"
 	"github.com/kennykarnama/go-mfcc/helper"
+	"github.com/kennykarnama/go-mfcc/mfcc/repository"
 
 	"github.com/kennykarnama/go-mfcc/preprocessing"
 
@@ -15,8 +17,9 @@ import (
 //for mfcc struct
 type Options struct {
 	Preprocessing preprocessing.PreProcessing
+	Framing       *framing.Framing
 	Filepath      string
-	Repository    KeyValueRepository
+	Repository    repository.KeyValueRepository
 }
 
 //Option represents compliant func to configuration
@@ -29,6 +32,14 @@ func WithPreProcessing(pr preprocessing.PreProcessing) Option {
 	}
 }
 
+//WithFraming sets the framing processor to perform frame blocking
+//May be improved using interface
+func WithFraming(fr *framing.Framing) Option {
+	return func(args *Options) {
+		args.Framing = fr
+	}
+}
+
 //WithFilepath sets the wav file path
 func WithFilepath(filepath string) Option {
 	return func(args *Options) {
@@ -38,7 +49,7 @@ func WithFilepath(filepath string) Option {
 
 //WithRepository sets the key value repository
 //used to save the result for each processes
-func WithRepository(kv KeyValueRepository) Option {
+func WithRepository(kv repository.KeyValueRepository) Option {
 	return func(args *Options) {
 		args.Repository = kv
 	}
@@ -49,12 +60,13 @@ func WithRepository(kv KeyValueRepository) Option {
 type MFCC struct {
 	Processor     *wav.Wav
 	PreProcessing preprocessing.PreProcessing
+	Framing       *framing.Framing
 	Filepath      string
-	Repository    KeyValueRepository
+	Repository    repository.KeyValueRepository
 }
 
 //NewMFCC creates the object of mfcc
-func NewMFCC(options ...Option) *MFCC {
+func NewMFCC(fr *framing.Framing, options ...Option) *MFCC {
 	args := Options{
 		Filepath:      "",
 		Preprocessing: nil,
@@ -72,6 +84,7 @@ func NewMFCC(options ...Option) *MFCC {
 		Processor:     proc,
 		PreProcessing: args.Preprocessing,
 		Repository:    args.Repository,
+		Framing:       fr,
 	}
 }
 
@@ -79,36 +92,20 @@ func NewMFCC(options ...Option) *MFCC {
 func (mfcc *MFCC) Run() []float32 {
 	n := mfcc.Processor.Samples
 	samples, err := mfcc.Processor.ReadSamples(n)
-	newSamples, err := conformToArrayFloat32(samples)
+	newSamples, err := helper.ConformToArrayFloat32(samples)
 	helper.FailOnError(err)
 	//PreProcessing step
 	if mfcc.PreProcessing != nil {
-		samples, err = mfcc.PreProcessing.PreProcess(newSamples)
+		res, err := mfcc.PreProcessing.PreProcess(newSamples)
+		helper.FailOnError(err)
+		newSamples = res.Samples
 	}
-	return newSamples
-}
 
-//Conform different bit samples type
-//to be []float32 without losing precision
-func conformToArrayFloat32(data interface{}) ([]float32, error) {
-	switch i := data.(type) {
-	case []uint8:
-		s := make([]float32, len(i))
-		for idx, val := range i {
-			s[idx] = float32(val)
-		}
-		return s, nil
-	case []uint16:
-		s := make([]float32, len(i))
-		for idx, val := range i {
-			s[idx] = float32(val)
-		}
-		return s, nil
-	case []float32:
-		return i, nil
-	default:
-		return nil, errors.New("Unknown bit sample format")
-	}
+	//Frame blocking (mandatory)
+	frames, err := mfcc.Framing.Run(newSamples)
+	helper.FailOnError(err)
+	log.Println(frames.Frames)
+	return newSamples
 }
 
 //GetTime returns the time vector
