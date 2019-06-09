@@ -37,7 +37,7 @@ func main() {
 	//here we introduce the pre-emphasis process
 	preEmphasis := preemphasis.NewPreEmphasis(preemphasis.WithAlfa(0.97), preemphasis.WithRepository(repo), preemphasis.WithPlot(plot))
 	//We construct the framing block
-	framing := framing.NewFraming(1024, 1024, framing.WithRepository(repo))
+	framing := framing.NewFraming(1024, 1024, framing.WithRepository(repo), framing.WithPlot(plot))
 	//We then construct new mfcc object to do the processing
 	mfcc := mfcc.NewMFCC(framing, mfcc.WithPreProcessing(preEmphasis), mfcc.WithFilepath("sample_sounds/bird.wav"), mfcc.WithRepository(repo))
 	mfcc.Run()

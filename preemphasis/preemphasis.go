@@ -1,8 +1,6 @@
 package preemphasis
 
 import (
-	"log"
-
 	"github.com/kennykarnama/go-mfcc/mfcc/plot"
 	"github.com/kennykarnama/go-mfcc/mfcc/repository"
 	"github.com/kennykarnama/go-mfcc/preprocessing"
@@ -101,7 +99,7 @@ func (pr *PreEmphasis) PreProcess(samples []float32) (*preprocessing.Result, err
 		}
 	}
 	if pr.Plot != nil {
-		log.Println("Pfdfdf")
+		//log.Println("Pfdfdf")
 		err := pr.Plot.Draw(samples)
 		if err != nil {
 			return nil, err

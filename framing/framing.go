@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/kennykarnama/go-mfcc/mfcc/plot"
+
 	"github.com/kennykarnama/go-mfcc/mfcc/repository"
 )
 
@@ -12,6 +14,7 @@ import (
 type Options struct {
 	KeyPrefix  string
 	Repository repository.KeyValueRepository
+	Plot       plot.Plot
 }
 
 //Option as abstraction of options
@@ -32,12 +35,20 @@ func WithRepository(kv repository.KeyValueRepository) Option {
 	}
 }
 
+//WithPlot sets the plotting will be used
+func WithPlot(plot plot.Plot) Option {
+	return func(args *Options) {
+		args.Plot = plot
+	}
+}
+
 //Framing represents the framing process
 type Framing struct {
 	KeyPrefix  string
 	Repository repository.KeyValueRepository
 	M          int32
 	N          int32
+	Plot       plot.Plot
 }
 
 //Result represents framing result
@@ -51,6 +62,7 @@ func NewFraming(M int32, N int32, options ...Option) *Framing {
 	opts := Options{
 		KeyPrefix:  "framing-result",
 		Repository: nil,
+		Plot:       nil,
 	}
 	for _, option := range options {
 		option(&opts)
@@ -60,6 +72,7 @@ func NewFraming(M int32, N int32, options ...Option) *Framing {
 		Repository: opts.Repository,
 		M:          M,
 		N:          N,
+		Plot:       opts.Plot,
 	}
 }
 
@@ -89,6 +102,12 @@ func (f *Framing) Run(samples []float32) (*Result, error) {
 		subvector := samples[startIdx:endIdx]
 		key := f.KeyPrefix + "-" + fmt.Sprint((framesProcessed + 1))
 		err := f.Repository.Save(key, subvector)
+		if f.Plot != nil {
+			err = f.Plot.Draw(subvector)
+			if err != nil {
+				return nil, err
+			}
+		}
 		if err != nil {
 			return nil, err
 		}
