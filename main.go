@@ -3,6 +3,8 @@ package main
 import (
 	"log"
 
+	"github.com/kennykarnama/go-mfcc/windowing"
+
 	"github.com/kennykarnama/go-mfcc/mfcc/plot"
 
 	"github.com/streadway/amqp"
@@ -38,8 +40,12 @@ func main() {
 	preEmphasis := preemphasis.NewPreEmphasis(preemphasis.WithAlfa(0.97), preemphasis.WithRepository(repo), preemphasis.WithPlot(plot))
 	//We construct the framing block
 	framing := framing.NewFraming(1024, 1024, framing.WithRepository(repo), framing.WithPlot(plot))
+	//We construct the windowing needed
+	//First we define the L (symetric point)
+	L := 2
+	hamming := windowing.NewHamming(int32(L))
 	//We then construct new mfcc object to do the processing
-	mfcc := mfcc.NewMFCC(framing, mfcc.WithPreProcessing(preEmphasis), mfcc.WithFilepath("sample_sounds/bird.wav"), mfcc.WithRepository(repo))
+	mfcc := mfcc.NewMFCC(framing, hamming, mfcc.WithPreProcessing(preEmphasis), mfcc.WithFilepath("sample_sounds/bird.wav"), mfcc.WithRepository(repo))
 	mfcc.Run()
 }
 

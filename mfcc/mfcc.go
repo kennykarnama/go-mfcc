@@ -4,6 +4,8 @@ import (
 	"log"
 	"os"
 
+	"github.com/kennykarnama/go-mfcc/windowing"
+
 	"github.com/kennykarnama/go-mfcc/framing"
 	"github.com/kennykarnama/go-mfcc/helper"
 	"github.com/kennykarnama/go-mfcc/mfcc/repository"
@@ -61,12 +63,13 @@ type MFCC struct {
 	Processor     *wav.Wav
 	PreProcessing preprocessing.PreProcessing
 	Framing       *framing.Framing
+	Windowing     windowing.Windowing
 	Filepath      string
 	Repository    repository.KeyValueRepository
 }
 
 //NewMFCC creates the object of mfcc
-func NewMFCC(fr *framing.Framing, options ...Option) *MFCC {
+func NewMFCC(fr *framing.Framing, wndw windowing.Windowing, options ...Option) *MFCC {
 	args := Options{
 		Filepath:      "",
 		Preprocessing: nil,
@@ -85,6 +88,7 @@ func NewMFCC(fr *framing.Framing, options ...Option) *MFCC {
 		PreProcessing: args.Preprocessing,
 		Repository:    args.Repository,
 		Framing:       fr,
+		Windowing:     wndw,
 	}
 }
 
